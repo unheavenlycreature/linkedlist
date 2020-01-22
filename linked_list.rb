@@ -28,7 +28,7 @@ class LinkedList
   end
 
   def tail
-    return head if head.nil?
+    return @head if @head.nil?
 
     iter = @head
     iter = iter.next_node until iter.next_node.nil?
@@ -46,26 +46,7 @@ class LinkedList
   end
 
   def pop
-    return nil if @head.nil?
-
-    if @head.next_node.nil?
-      @size = 0
-      head = @head
-      @head = nil
-      return head
-    end
-
-    @size -= 1
-    iter = @head
-
-    # Point to one node before the tail.
-    (@size - 1).times do
-      iter = iter.next_node
-    end
-
-    to_pop = iter.next_node
-    iter.next_node = nil
-    to_pop
+    remove_at(@size - 1)
   end
 
   def contains?(value)
@@ -99,5 +80,57 @@ class LinkedList
     end
     list_str += 'nil'
     list_str
+  end
+
+  # Inserts a node at the given index. If the list
+  # is shorter than that index, nodes with nil values
+  # are created.
+  def insert_at(value, index)
+    return prepend(value) if index.zero?
+
+    # If the list is empty we need to initialize the head.
+    if @head.nil?
+      @head = Node.new
+      iter = @head
+      @size += 1
+    end
+
+    iter = @head
+
+    # Move to one position behind the index we'd like to
+    # insert at.
+    (index - 1).times do
+      if iter.next_node.nil?
+        iter.next_node = Node.new
+        iter = iter.next_node
+        @size += 1
+      else
+        iter = iter.next_node
+      end
+    end
+    @size += 1
+    to_insert = Node.new(value, iter.next_node)
+    iter.next_node = to_insert
+  end
+
+  def remove_at(index)
+    return nil if index > @size - 1
+
+    @size -= 1
+    if index == 0
+      to_return = @head
+      @head = @head.next_node
+      return to_return
+    end
+
+    iter = @head
+    (index - 1).times do
+      iter = iter.next_node
+    end
+
+    to_return = iter.next_node
+    iter.next_node = to_return.next_node
+    to_return.next_node = nil
+    to_return
   end
 end
